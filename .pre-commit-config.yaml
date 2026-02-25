@@ -1,0 +1,18 @@
+repos:
+  - repo: local
+    hooks:
+      - id: go-fmt
+        name: Go format
+        entry: sh -c 'if [ "$(gofmt -l -s . | wc -l)" -gt 0 ]; then echo "Go files need formatting"; gofmt -l -s .; exit 1; fi'
+        language: system
+        files: \.go$
+      - id: go-build
+        name: Go build
+        entry: go build -o /tmp/terraformlib .
+        language: system
+        files: \.go$
+      - id: go-vet
+        name: Go vet
+        entry: go vet ./...
+        language: system
+        files: \.go$
