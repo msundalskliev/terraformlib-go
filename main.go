@@ -204,6 +204,13 @@ func installDocker() error {
 }
 
 func loadConfig(path string) (*Config, error) {
+	// Check if there's a deploy-config.yaml to handle merging
+	deployConfigPath := "deploy-config.yaml"
+	if fileExists(deployConfigPath) {
+		return loadConfigWithMerging(path, deployConfigPath)
+	}
+	
+	// Fallback to direct loading
 	data, err := os.ReadFile(path)
 	if err != nil {
 		return nil, err
@@ -215,6 +222,79 @@ func loadConfig(path string) (*Config, error) {
 	}
 
 	return &config, nil
+}
+
+func loadConfigWithMerging(configPath, deployConfigPath string) (*Config, error) {
+	// Load deploy config to get paths
+	deployData, err := os.ReadFile(deployConfigPath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to load deploy config: %v", err)
+	}
+	
+	var deployConfig struct {
+		Paths struct {
+			Shared string `yaml:"shared"`
+		} `yaml:"paths"`
+	}
+	if err := yaml.Unmarshal(deployData, &deployConfig); err != nil {
+		return nil, fmt.Errorf("failed to parse deploy config: %v", err)
+	}
+	
+	// Load shared values
+	sharedData, err := os.ReadFile(deployConfig.Paths.Shared)
+	if err != nil {
+		return nil, fmt.Errorf("failed to load shared config: %v", err)
+	}
+	
+	var sharedConfig Config
+	if err := yaml.Unmarshal(sharedData, &sharedConfig); err != nil {
+		return nil, fmt.Errorf("failed to parse shared config: %v", err)
+	}
+	
+	// Load terraform-specific config
+	tfData, err := os.ReadFile(configPath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to load terraform config: %v", err)
+	}
+	
+	var tfConfig Config
+	if err := yaml.Unmarshal(tfData, &tfConfig); err != nil {
+		return nil, fmt.Errorf("failed to parse terraform config: %v", err)
+	}
+	
+	// Merge configs (terraform-specific overrides shared)
+	merged := sharedConfig
+	// Initialize maps if nil
+	if merged.Storage == nil {
+		merged.Storage = make(map[string]string)
+	}
+	if merged.Cluster.Ports == nil {
+		merged.Cluster.Ports = make(map[string]int)
+	}
+	
+	if tfConfig.Namespace != "" {
+		merged.Namespace = tfConfig.Namespace
+	}
+	if tfConfig.DatabaseName != "" {
+		merged.DatabaseName = tfConfig.DatabaseName
+	}
+	if tfConfig.GrafanaPassword != "" {
+		merged.GrafanaPassword = tfConfig.GrafanaPassword
+	}
+	if tfConfig.SampleAppReplicas != 0 {
+		merged.SampleAppReplicas = tfConfig.SampleAppReplicas
+	}
+	// Always use shared cluster config if terraform doesn't override
+	if tfConfig.Cluster.Name == "" {
+		merged.Cluster = sharedConfig.Cluster
+	} else {
+		merged.Cluster = tfConfig.Cluster
+	}
+	if len(tfConfig.Storage) > 0 {
+		merged.Storage = tfConfig.Storage
+	}
+	
+	return &merged, nil
 }
 
 func loadManifest(path string) (*Manifest, error) {
