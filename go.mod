@@ -1,4 +1,4 @@
-module terraformlib
+module github.com/msundalskliev/terraformlib-go
 
 go 1.21
 

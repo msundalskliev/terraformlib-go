@@ -5,8 +5,8 @@ import (
 	"log"
 	"os"
 
-	"github.com/michael/terraformlib/internal/config"
-	"github.com/michael/terraformlib/internal/terraform"
+	"github.com/msundalskliev/terraformlib-go/internal/config"
+	"github.com/msundalskliev/terraformlib-go/internal/terraform"
 )
 
 func main() {

@@ -7,7 +7,7 @@ import (
 	"os/exec"
 	"path/filepath"
 
-	"github.com/michael/terraformlib/internal/config"
+	"github.com/msundalskliev/terraformlib-go/internal/config"
 	"gopkg.in/yaml.v2"
 )
 
