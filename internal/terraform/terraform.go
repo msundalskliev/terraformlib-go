@@ -12,13 +12,13 @@ import (
 )
 
 type Vars struct {
-	Namespace         string            `json:"namespace"`
-	Images            map[string]string `json:"images"`
-	Cluster           config.ClusterConfig     `json:"cluster"`
-	Storage           map[string]string `json:"storage"`
-	DatabaseName      string            `json:"database_name"`
-	GrafanaPassword   string            `json:"grafana_password"`
-	SampleAppReplicas int               `json:"sample_app_replicas"`
+	Namespace         string               `json:"namespace"`
+	Images            map[string]string    `json:"images"`
+	Cluster           config.ClusterConfig `json:"cluster"`
+	Storage           map[string]string    `json:"storage"`
+	DatabaseName      string               `json:"database_name"`
+	GrafanaPassword   string               `json:"grafana_password"`
+	SampleAppReplicas int                  `json:"sample_app_replicas"`
 }
 
 func Run(action string, cfg *config.Config, manifest *config.Manifest, terraformDir string) error {
