@@ -1,16 +1,19 @@
-# Binaries for programs and plugins
+# binaries in root only
+/terraformlib
+*.old
+
+# compiled binaries
 *.exe
 *.exe~
 *.dll
 *.so
 *.dylib
-terraformlib
 
-# Test binary, built with `go test -c`
+# test binary, built with `go test -c`
 *.test
 
-# Output of the go coverage tool
+# output of the go coverage tool
 *.out
 
-# Go workspace file
+# go workspace file
 go.work
