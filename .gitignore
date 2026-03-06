@@ -16,4 +16,4 @@
 *.out
 
 # go workspace file
-go.work
+go.workvendor/
